@@ -4,10 +4,14 @@ import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.clients.consumer.ConsumerRecords;
 import org.apache.kafka.clients.consumer.KafkaConsumer;
+import org.apache.kafka.common.PartitionInfo;
+import org.apache.kafka.common.TopicPartition;
 import org.apache.kafka.common.serialization.StringDeserializer;
 
 import java.time.Duration;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Properties;
 
 /**
@@ -25,6 +29,24 @@ public class Consumer {
         Properties properties = initConfig();
 
         KafkaConsumer<String, String> consumer = new KafkaConsumer<>(properties);
+
+        /*List<PartitionInfo> partitionInfos = consumer.partitionsFor(topic);
+        List<TopicPartition> topicPartitions = new ArrayList<>();
+        for (PartitionInfo partitionInfo : partitionInfos) {
+            topicPartitions.add(
+                    new TopicPartition(partitionInfo.topic(), partitionInfo.partition())
+            );
+        }
+
+        consumer.assign(topicPartitions);
+
+        while (true) {
+            ConsumerRecords<String, String> records = consumer.poll(Duration.ofSeconds(1));
+            for (ConsumerRecord<String, String> record : records) {
+                System.out.println(record.value());
+            }
+        }*/
+
 
         consumer.subscribe(Collections.singleton(topic));
 
