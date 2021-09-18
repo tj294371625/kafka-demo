@@ -1,8 +1,10 @@
 package client;
 
+import bean.Company;
 import interceptor.ProducerInterceptorImpl;
 import org.apache.kafka.clients.producer.*;
 import org.apache.kafka.common.serialization.StringSerializer;
+import serializer.CompanySerializer;
 
 import java.util.Objects;
 import java.util.Properties;
@@ -38,11 +40,14 @@ public class Producer {
 
         // 异步方式
         try (
-                KafkaProducer<String, String> producer = new KafkaProducer<>(properties)
+                KafkaProducer<String, Company> producer = new KafkaProducer<>(properties)
         ) {
 
             // zs：回调函数可以保证是有序的
-            ProducerRecord<String, String> msg = new ProducerRecord<>(topic, 1, null, "凡人修仙传");
+            Company company = new Company();
+            company.setName("凡人修仙传传媒公司");
+            company.setAddress("北京海淀区中关村");
+            ProducerRecord<String, Company> msg = new ProducerRecord<>(topic, 1, null, company);
             producer.send(
                     msg,
                     (metadata, exception) -> {
@@ -66,7 +71,7 @@ public class Producer {
     private static Properties initConfig() {
         Properties properties = new Properties();
         properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, CompanySerializer.class.getName());
         properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, brokerList);
         // 重试3次，重试期间不抛出异常，但如果三次过后，消息仍未发送成功，则抛出异常，需要我们在代码中处理
         // zs：这是一个联动参数，谨慎使用
