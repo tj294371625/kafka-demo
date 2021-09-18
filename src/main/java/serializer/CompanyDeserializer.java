@@ -1,9 +1,13 @@
 package serializer;
 
 import bean.Company;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
+import io.protostuff.runtime.RuntimeSchema;
 import org.apache.kafka.common.serialization.Deserializer;
 
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author lawliet
@@ -18,7 +22,14 @@ public class CompanyDeserializer implements Deserializer<Company> {
     }
 
     public Company deserialize(String topic, byte[] data) {
-        return null;
+        if (Objects.isNull(data)) {
+            return null;
+        }
+
+        Schema<Company> schema = RuntimeSchema.getSchema(Company.class);
+        Company ans = new Company();
+        ProtostuffIOUtil.mergeFrom(data, ans, schema);
+        return ans;
     }
 
     public void close() {

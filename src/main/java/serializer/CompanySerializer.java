@@ -1,6 +1,10 @@
 package serializer;
 
 import bean.Company;
+import io.protostuff.LinkedBuffer;
+import io.protostuff.ProtostuffIOUtil;
+import io.protostuff.Schema;
+import io.protostuff.runtime.RuntimeSchema;
 import org.apache.kafka.common.serialization.Serializer;
 
 import java.util.Map;
@@ -19,11 +23,15 @@ public class CompanySerializer implements Serializer<Company> {
 
     }
 
+    @SuppressWarnings("unchecked")
     public byte[] serialize(String topic, Company data) {
         if (Objects.isNull(data)) {
             return null;
         }
-        return new byte[0];
+
+        Schema schema = RuntimeSchema.getSchema(data.getClass());
+        LinkedBuffer buffer = LinkedBuffer.allocate(LinkedBuffer.DEFAULT_BUFFER_SIZE);
+        return ProtostuffIOUtil.toByteArray(data, schema, buffer);
     }
 
     public void close() {
